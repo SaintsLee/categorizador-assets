@@ -2,9 +2,8 @@ import pandas as pd
 import joblib
 import streamlit as st
 from io import BytesIO
-from decouple import config
 
-st.set_page_config(layout='wide')
+st.set_page_config(layout='wide', page_icon="📈",page_title="Categorizador - v0.1")
 
 PASSWORD = st.secrets["general"]["PASSWORD"]
 
@@ -20,12 +19,12 @@ def check_password():
 
 if not st.session_state.authenticated:
     st.title("Acesso Restrito")
-    st.text_input("Digite a senha:", type="password", key="password")
+    st.text_input("Digite a senha 🔑", type="password", key="password")
     st.button("Entrar", on_click=check_password)
 else:
 
     st.title("Categorizador de ativos")
-    st.write("Você está autenticado.")
+    st.write("Você está autenticado ✅")
 
     vectorizer = joblib.load('vetorizador.pkl')
     model = joblib.load('modelo_GRIDSEARCH_balanceado.pkl')

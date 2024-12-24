@@ -6,7 +6,7 @@ from decouple import config
 
 st.set_page_config(layout='wide')
 
-PASSWORD = config("PASSWORD")
+PASSWORD = st.secrets["general"]["PASSWORD"]
 
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False

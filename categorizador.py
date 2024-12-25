@@ -5,6 +5,14 @@ from io import BytesIO
 
 st.set_page_config(layout='wide', page_icon="📈",page_title="Categorizador - v0.1")
 
+@st.cache_data
+def load_data():
+    vector = joblib.load('vetorizador.pkl')
+    model_class = joblib.load('modelo_GRIDSEARCH_balanceado.pkl')
+    return vector, model_class
+
+vectorizer, model = load_data()
+
 PASSWORD = st.secrets["general"]["PASSWORD"]
 
 if "authenticated" not in st.session_state:
@@ -25,9 +33,6 @@ else:
 
     st.title("Categorizador de ativos")
     st.write("Você está autenticado ✅")
-
-    vectorizer = joblib.load('vetorizador.pkl')
-    model = joblib.load('modelo_GRIDSEARCH_balanceado.pkl')
 
     # Passo 6: Usar o modelo para prever em novos dados
     # Carregar a nova planilha com os nomes dos ativos

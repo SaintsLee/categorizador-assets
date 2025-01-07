@@ -3,7 +3,7 @@ import joblib
 import streamlit as st
 from io import BytesIO
 
-st.set_page_config(layout='wide', page_icon="📈",page_title="Categorizador - v0.1")
+st.set_page_config(layout='wide', page_icon="📈",page_title="Categorizador - v0.2")
 
 @st.cache_data
 def load_data():

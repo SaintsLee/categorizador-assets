@@ -79,8 +79,17 @@ else:
         gestao = model_gest.predict(X_novos_ativos_gest)
         df_categorizado['Tipo Gestão'] = gestao
 
-        df_categorizado['Broker'] = df_novos_ativos['broker']
-        df_categorizado['Emissor'] = df_novos_ativos['issuer_name']
+        # Atribui a origem para ativos bancários
+        df_categorizado['Origem'] = df_categorizado['Ativo'].apply(
+            lambda x: 'BANCÁRIO' if any(substr in x for substr in ['CDB','LCI','LCA']) else 'OUTROS')
+
+        # Filtra ativos bancários como PASSIVO caso o algoritimo classifique como ATIVO
+        df_categorizado.loc[
+            (df_categorizado['Origem'] == 'BANCÁRIO') & (df_categorizado['Tipo Gestão'] == 'ATIVO'),
+            'Tipo Gestão'] = 'PASSIVO'
+
+        # Remove duplicatas
+        df_categorizado = df_categorizado.drop_duplicates(subset='Ativo')
 
         st.markdown("### Ativos categorizados")
         st.dataframe(df_categorizado)

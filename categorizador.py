@@ -43,9 +43,25 @@ else:
 
     uploaded_file = st.file_uploader("Upload", type='xlsx', label_visibility="hidden")
 
+    def categoriza_rf(dataset):
+        df_novos_ativos_rf = pd.read_excel(uploaded_file,sheet_name='Renda Fixa')
+        df_novos_ativos_rf.fillna('',inplace = True)
+
+        dataset = pd.DataFrame()
+        dataset['Ativo'] = df_novos_ativos_rf['asset_name']
+        dataset['Categoria'] = df_novos_ativos_rf['class'].str.upper()
+        dataset['Recomendação'] = df_novos_ativos_rf['class'].apply(lambda x: 'NÃO' if 'COE' in x else 'PORTFEL')
+        dataset['Tipo Gestão'] = df_novos_ativos_rf['class'].apply(lambda x: 'ATIVO' if 'COE' in x else 'PASSIVO')
+        dataset['Origem'] = df_novos_ativos_rf['class'].apply(lambda x: 'OUTROS' if 'COE' in x else 'BANCÁRIO')
+
+        return dataset
+
     if uploaded_file is not None:
         df_novos_ativos = pd.read_excel(uploaded_file)
         df_novos_ativos.fillna('', inplace=True)
+
+        df_renda_fixa_categorizado = categoriza_rf(uploaded_file)
+
 
         df_novos_ativos_names = pd.DataFrame()
         df_novos_ativos_names['Ativos'] = (df_novos_ativos['asset_name'] + " " +
@@ -92,7 +108,9 @@ else:
         df_categorizado = df_categorizado.drop_duplicates(subset='Ativo')
 
         st.markdown("### Ativos categorizados")
-        st.dataframe(df_categorizado)
+        df_final = pd.concat([df_categorizado,df_renda_fixa_categorizado], ignore_index=True)
+        st.dataframe(df_final)
+
 
         # Converte o DataFrame para um arquivo Excel
         def convert_df_to_excel(df):
@@ -104,7 +122,7 @@ else:
 
 
         # Gera o arquivo Excel
-        excel_data = convert_df_to_excel(df_categorizado)
+        excel_data = convert_df_to_excel(df_final)
 
         st.download_button("Download", data=excel_data, file_name="pre-categorized-assets.xlsx", mime="text/xlsx")
 

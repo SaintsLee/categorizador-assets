@@ -43,8 +43,8 @@ else:
 
     uploaded_file = st.file_uploader("Upload", type='xlsx', label_visibility="hidden")
 
-    def categoriza_rf(dataset):
-        df_novos_ativos_rf = pd.read_excel(uploaded_file,sheet_name='Renda Fixa')
+    def categoriza_rf(df_uploaded):
+        df_novos_ativos_rf = pd.read_excel(df_uploaded,sheet_name='Renda Fixa')
         df_novos_ativos_rf.fillna('',inplace = True)
 
         dataset = pd.DataFrame()
@@ -105,12 +105,24 @@ else:
             'Tipo Gestão'] = 'PASSIVO'
 
         # Remove duplicatas
+        ativos_iniciais_todos = df_categorizado['Ativo'].count()
+        ativos_iniciais_rf = df_renda_fixa_categorizado['Ativo'].count()
+
+        duplicatas_todos = df_categorizado.duplicated(subset='Ativo').sum()
+        duplicatas_rf = df_renda_fixa_categorizado.duplicated(subset='Ativo').sum()
+        st.markdown(f'- Duplicatas aba Todos: {duplicatas_todos}')
+        st.markdown(f'- Duplicatas aba Renda Fixa: {duplicatas_rf}')
+        st.markdown(f'- Duplicatas total: {duplicatas_todos + duplicatas_rf}')
+        st.markdown(f'- Ativos iniciais: {ativos_iniciais_todos + ativos_iniciais_rf}')
+        st.markdown(f'- Ativos sem duplicatas: {ativos_iniciais_todos + ativos_iniciais_rf - (duplicatas_todos + duplicatas_rf)}')
+
         df_categorizado = df_categorizado.drop_duplicates(subset='Ativo')
+        df_renda_fixa_categorizado = df_renda_fixa_categorizado.drop_duplicates(subset='Ativo')
 
         st.markdown("### Ativos categorizados")
         df_final = pd.concat([df_categorizado,df_renda_fixa_categorizado], ignore_index=True)
-        st.dataframe(df_final)
 
+        st.dataframe(df_categorizado)
 
         # Converte o DataFrame para um arquivo Excel
         def convert_df_to_excel(df):
@@ -119,7 +131,6 @@ else:
                 df.to_excel(writer, index=False, sheet_name="Assets")
             buffer.seek(0)  # Retorna o ponteiro para o início do buffer
             return buffer
-
 
         # Gera o arquivo Excel
         excel_data = convert_df_to_excel(df_final)

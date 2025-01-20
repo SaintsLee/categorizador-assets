@@ -1,6 +1,6 @@
 .env
 .venv
 main.py
-secrets.toml
+.streamlit/secrets.toml
 portfel-product-list.xlsx
 

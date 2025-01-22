@@ -77,7 +77,6 @@ else:
         df_emissor_SB = ClassE.data_sb(df_novos_ativos)
         # Aplicação do Regex para extração do emissor
         df_emissor_SB_cat = ClassE.processa_emissores_SMARTBRAIN(df_emissor_SB)
-        st.dataframe(df_emissor_SB_cat)
         # Aplicação do filro para atribuir os emissores ao dataframe a ser categorizado
         filtro = df_novos_ativos[df_novos_ativos['broker'] == 'SMARTBRAIN']['asset_name'].str.contains(r'\b(CDB|LCI|LCA)\b', case=False,
                                                                                  na=False)

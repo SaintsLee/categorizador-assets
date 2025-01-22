@@ -2,6 +2,7 @@ import pandas as pd
 import joblib
 import streamlit as st
 from io import BytesIO
+import class_emissor as ClassE
 
 st.set_page_config(layout='wide', page_icon="📈",page_title="Categorizador - v0.2")
 
@@ -72,6 +73,23 @@ else:
                                            df_novos_ativos['percentual_index_fixed_income']
                                            )
 
+        # Aplicação do filtro para CDB/LCI/LCA para SMARTBRAIN
+        df_emissor_SB = ClassE.data_sb(df_novos_ativos)
+        # Aplicação do Regex para extração do emissor
+        df_emissor_SB_cat = ClassE.processa_emissores_SMARTBRAIN(df_emissor_SB)
+        st.dataframe(df_emissor_SB_cat)
+        # Aplicação do filro para atribuir os emissores ao dataframe a ser categorizado
+        filtro = df_novos_ativos[df_novos_ativos['broker'] == 'SMARTBRAIN']['asset_name'].str.contains(r'\b(CDB|LCI|LCA)\b', case=False,
+                                                                                 na=False)
+        # Emissor
+        df_novos_ativos.loc[
+            (df_novos_ativos['broker'] == 'SMARTBRAIN') & filtro, 'issuer_name'
+                            ] = df_emissor_SB_cat['Banco'].values
+        # Vencimento
+        df_novos_ativos.loc[
+            (df_novos_ativos['broker'] == 'SMARTBRAIN') & filtro, 'duedate_fixed_income'
+                            ] = df_emissor_SB_cat['Vencimento'].values
+
         # Categorização: Classificação
         X_novos_ativos = vectorizer.transform(df_novos_ativos_names['Ativos'])
 
@@ -80,6 +98,8 @@ else:
         df_categorizado = pd.DataFrame()
         df_categorizado['Ativo'] = df_novos_ativos['asset_name']
         df_categorizado['Categoria'] = categorias
+        df_categorizado['Emissor'] = df_novos_ativos['issuer_name']
+        df_categorizado['Vencimento'] = df_novos_ativos['duedate_fixed_income']
 
         # Categorização: Recomendação Portfel
         df_novos_ativos_names_rec = df_categorizado['Ativo']
@@ -103,6 +123,11 @@ else:
         df_categorizado.loc[
             (df_categorizado['Origem'] == 'BANCÁRIO') & (df_categorizado['Tipo Gestão'] == 'ATIVO'),
             'Tipo Gestão'] = 'PASSIVO'
+
+        # Filtra ativos bancários como PORTFEL caso o algoritimo classifique como NÃO
+        df_categorizado.loc[
+            (df_categorizado['Origem'] == 'BANCÁRIO') & (df_categorizado['Tipo Gestão'] == 'PASSIVO'),
+            'Recomendação'] = 'PORTFEL'
 
         # Remove duplicatas
         ativos_iniciais_todos = df_categorizado['Ativo'].count()

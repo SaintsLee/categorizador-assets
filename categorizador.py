@@ -53,7 +53,7 @@ else:
         dataset['Categoria'] = df_novos_ativos_rf['class'].str.upper()
         dataset['Recomendação'] = df_novos_ativos_rf['class'].apply(lambda x: 'NÃO' if 'COE' in x else 'PORTFEL')
         dataset['Tipo Gestão'] = df_novos_ativos_rf['class'].apply(lambda x: 'ATIVO' if 'COE' in x else 'PASSIVO')
-        dataset['Origem'] = df_novos_ativos_rf['class'].apply(lambda x: 'OUTROS' if 'COE' in x else 'BANCÁRIO')
+        dataset['Origem'] = df_novos_ativos_rf['class'].apply(lambda x: 'BANCÁRIO' if any(substr in x for substr in ['CDB','LCI','LCA']) else 'OUTROS')
 
         return dataset
 

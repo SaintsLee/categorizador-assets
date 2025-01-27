@@ -42,10 +42,13 @@ def remover_numeros_caracteres_especiais(s):
   else:
     return re.sub(r'[^\w~´\s]|(?:\bCDI\b|\bIPCA\b)|\b\d+\b|\b\w\b', '', s, flags=re.UNICODE)
 
-def limpar_taxa(s):
+def limpar_taxa(s):    # Verifica se o valor é NaN ou não é uma string
+    if pd.isna(s) or not isinstance(s, str):
+        return None  # Retorna None para valores inválidos
+
     # Remover '+' ou '-' e o símbolo '%', mantendo os números e ponto
     taxa = re.sub(r'[^\d.-]', '', s)  # Remover tudo que não for dígito, ponto ou sinal
-    if taxa:  # Verifica se a string não está vazia
+    if taxa:  # Verifica se a string resultante não está vazia
         return float(taxa)
     else:
         return None
@@ -69,6 +72,6 @@ def processa_emissores_SMARTBRAIN(dataset):
 
   # Tratamento final
   df_organizado['Banco'] = df_organizado['Banco'].apply(remover_numeros_caracteres_especiais)
-  df_organizado['Taxa'] = df_organizado['Taxa'].apply(limpar_taxa)
+  df_organizado['Taxa'] = df_organizado['Taxa'].fillna('').apply(limpar_taxa)
 
   return df_organizado

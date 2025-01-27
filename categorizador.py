@@ -114,20 +114,6 @@ else:
         gestao = model_gest.predict(X_novos_ativos_gest)
         df_categorizado['Tipo Gestão'] = gestao
 
-        # Atribui a origem para ativos bancários
-        df_categorizado['Origem'] = df_categorizado['Ativo'].apply(
-            lambda x: 'BANCÁRIO' if any(substr in x for substr in ['CDB','LCI','LCA']) else 'OUTROS')
-
-        # Filtra ativos bancários como PASSIVO caso o algoritimo classifique como ATIVO
-        df_categorizado.loc[
-            (df_categorizado['Origem'] == 'BANCÁRIO') & (df_categorizado['Tipo Gestão'] == 'ATIVO'),
-            'Tipo Gestão'] = 'PASSIVO'
-
-        # Filtra ativos bancários como PORTFEL caso o algoritimo classifique como NÃO
-        df_categorizado.loc[
-            (df_categorizado['Origem'] == 'BANCÁRIO') & (df_categorizado['Tipo Gestão'] == 'PASSIVO'),
-            'Recomendação'] = 'PORTFEL'
-
         # Remove duplicatas
         ativos_iniciais_todos = df_categorizado['Ativo'].count()
         ativos_iniciais_rf = df_renda_fixa_categorizado['Ativo'].count()
@@ -146,7 +132,21 @@ else:
         st.markdown("### Ativos categorizados")
         df_final = pd.concat([df_categorizado,df_renda_fixa_categorizado], ignore_index=True)
 
-        st.dataframe(df_categorizado)
+        # Atribui a origem para ativos bancários
+        df_final['Origem'] = df_final['Ativo'].apply(
+            lambda x: 'BANCÁRIO' if any(substr in x for substr in ['CDB', 'LCI', 'LCA']) else 'OUTROS')
+
+        # Filtra ativos bancários como PASSIVO caso o algoritimo classifique como ATIVO
+        df_final.loc[
+            (df_final['Origem'] == 'BANCÁRIO') & (df_final['Tipo Gestão'] == 'ATIVO'),
+            'Tipo Gestão'] = 'PASSIVO'
+
+        # Filtra ativos bancários como PORTFEL caso o algoritimo classifique como NÃO
+        df_final.loc[
+            (df_final['Origem'] == 'BANCÁRIO') & (df_final['Tipo Gestão'] == 'PASSIVO'),
+            'Recomendação'] = 'PORTFEL'
+
+        st.dataframe(df_final)
 
         # Converte o DataFrame para um arquivo Excel
         def convert_df_to_excel(df):

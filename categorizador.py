@@ -146,6 +146,12 @@ else:
             (df_final['Origem'] == 'BANCÁRIO') & (df_final['Tipo Gestão'] == 'PASSIVO'),
             'Recomendação'] = 'PORTFEL'
 
+        # Verifica COE, CRI, CRA, DEB
+        df_final['Recomendação'] = df_final['Ativo'].apply(
+            lambda x: 'NÃO' if any(substr in x for substr in ['COE', 'CRI', 'CRA', 'DEB']) else x)
+        df_final['Tipo Gestão'] = df_final['Ativo'].apply(
+            lambda x: 'ATIVO' if any(substr in x for substr in ['COE', 'CRI', 'CRA', 'DEB']) else x)
+
         st.dataframe(df_final)
 
         # Converte o DataFrame para um arquivo Excel

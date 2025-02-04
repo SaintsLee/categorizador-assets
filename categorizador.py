@@ -147,10 +147,13 @@ else:
             'Recomendação'] = 'PORTFEL'
 
         # Verifica COE, CRI, CRA, DEB
-        df_final['Recomendação'] = df_final['Ativo'].apply(
-            lambda x: 'NÃO' if any(substr in x for substr in ['COE', 'CRI', 'CRA', 'DEB']) else x)
-        df_final['Tipo Gestão'] = df_final['Ativo'].apply(
-            lambda x: 'ATIVO' if any(substr in x for substr in ['COE', 'CRI', 'CRA', 'DEB']) else x)
+        df_final.loc[
+            df_final['Ativo'].str.contains(r'\b(COE|COES|CRI|CRA|DEB)\b', na=False), 'Recomendação'
+        ] = 'NÃO'
+
+        df_final.loc[
+            df_final['Ativo'].str.contains(r'\b(COE|COES|CRI|CRA|DEB)\b', na=False), 'Tipo Gestão'
+        ] = 'ATIVO'
 
         st.dataframe(df_final)
 

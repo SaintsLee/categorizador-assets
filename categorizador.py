@@ -2,7 +2,9 @@ import pandas as pd
 import joblib
 import streamlit as st
 from io import BytesIO
+import re
 import class_emissor as ClassE
+import ativos_diligenciados
 
 st.set_page_config(layout='wide', page_icon="📈",page_title="Categorizador - v0.2")
 
@@ -154,6 +156,18 @@ else:
         df_final.loc[
             df_final['Ativo'].str.contains(r'\b(COE|COES|CRI|CRA|DEB)\b', na=False), 'Tipo Gestão'
         ] = 'ATIVO'
+
+        df_final.loc[
+            df_final['Ativo'].str.contains(r'\b(COE|COES|CRI|CRA|DEB)\b', na=False), 'Tipo Gestão'
+        ] = 'ATIVO'
+
+        # Ajuste ETF's diligenciados
+        ETF = ativos_diligenciados.lista_etf()
+        df_final['Recomendação'] = df_final['Ativo'].apply(
+            lambda x: 'PORTFEL' if any(re.search(rf'\b{re.escape(substr)}\b',x) for substr in ETF) else 'NÃO')
+        df_final['Tipo Gestão'] = df_final['Ativo'].apply(
+            lambda x: 'PASSIVA' if any(re.search(rf'\b{re.escape(substr)}\b', x) for substr in ETF) else 'ATIVO')
+
 
         st.dataframe(df_final)
 

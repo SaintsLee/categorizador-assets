@@ -184,11 +184,21 @@ else:
         excel_data = convert_df_to_excel(df_final)
 
         # Formata a data no formato desejado
-        # Define o locale para português (Brasil)
-        locale.setlocale(locale.LC_TIME, "pt_BR.utf8")
+        # Dicionário de meses em português
+        meses_pt = {
+            "Jan": "Jan", "Feb": "Fev", "Mar": "Mar", "Apr": "Abr",
+            "May": "Mai", "Jun": "Jun", "Jul": "Jul", "Aug": "Ago",
+            "Sep": "Set", "Oct": "Out", "Nov": "Nov", "Dec": "Dez"
+        }
 
-        data_formatada = pd.to_datetime("today").strftime("%d-%b")
-        st.download_button("Download", data=excel_data, file_name=f"pre-categorized-assets ({data_formatada}).xlsx", mime="text/xlsx")
+        # Obtém a data de hoje e formata
+        data_hoje = pd.to_datetime("today").strftime("%d-%b")
+
+        # Substitui o mês pelo nome em português
+        for eng, pt in meses_pt.items():
+            data_hoje = data_hoje.replace(eng, pt)
+
+        st.download_button("Download", data=excel_data, file_name=f"pre-categorized-assets ({data_hoje}).xlsx", mime="text/xlsx")
 
     if st.button("Sair"):
         st.session_state.authenticated = False

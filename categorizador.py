@@ -3,6 +3,7 @@ import joblib
 import streamlit as st
 from io import BytesIO
 import re
+import locale
 import class_emissor as ClassE
 import ativos_diligenciados
 
@@ -182,7 +183,12 @@ else:
         # Gera o arquivo Excel
         excel_data = convert_df_to_excel(df_final)
 
-        st.download_button("Download", data=excel_data, file_name="pre-categorized-assets.xlsx", mime="text/xlsx")
+        # Formata a data no formato desejado
+        # Define o locale para português (Brasil)
+        locale.setlocale(locale.LC_TIME, "pt_BR.utf8")
+
+        data_formatada = pd.to_datetime("today").strftime("%d-%b")
+        st.download_button("Download", data=excel_data, file_name=f"pre-categorized-assets ({data_formatada}).xlsx", mime="text/xlsx")
 
     if st.button("Sair"):
         st.session_state.authenticated = False

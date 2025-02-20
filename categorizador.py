@@ -3,8 +3,9 @@ import joblib
 import streamlit as st
 from io import BytesIO
 import re
-import locale
+
 import class_emissor as ClassE
+import padronizacao_emissor
 import ativos_diligenciados
 
 st.set_page_config(layout='wide', page_icon="📈",page_title="Categorizador - v0.2")
@@ -17,9 +18,18 @@ def load_data():
     model_rec_1 = joblib.load('modelo_GRIDSEARCH_rec.pkl')
     vector_gest_1 = joblib.load('vetorizador_gest.pkl')
     model_gest_1 = joblib.load('modelo_GRIDSEARCH_gest.pkl')
-    return vector, model_class, vector_rec_1, model_rec_1, vector_gest_1, model_gest_1
 
-vectorizer, model, vector_rec, model_rec, vector_gest, model_gest = load_data()
+    ## Class emissor e codigos
+    risco_1 = pd.read_excel('RISCO.xlsx')
+    emissor_keys_1 = pd.read_excel('KEYS_EMISSOR.xlsx')
+    cod_emissor_1 = pd.read_excel('CODIGO_EMISSOR.xlsx')
+
+    return vector, model_class, vector_rec_1, model_rec_1, vector_gest_1, model_gest_1, risco_1, emissor_keys_1, cod_emissor_1
+
+vectorizer, model, vector_rec, model_rec, vector_gest, model_gest, risco, emissor_keys, cod_emissor = load_data()
+emissor_keys = emissor_keys.fillna('N/A')
+cod_emissor = cod_emissor.fillna('N/A')
+
 
 PASSWORD = st.secrets["general"]["PASSWORD"]
 
@@ -38,7 +48,6 @@ if not st.session_state.authenticated:
     st.text_input("Digite a senha 🔑", type="password", key="password")
     st.button("Entrar", on_click=check_password)
 else:
-
     st.title("Categorizador de ativos")
     st.write("Você está autenticado ✅")
 
@@ -98,7 +107,7 @@ else:
         categorias = model.predict(X_novos_ativos)
 
         df_categorizado = pd.DataFrame()
-        df_categorizado['Ativo'] = df_novos_ativos['asset_name']
+        df_categorizado['Ativo'] = df_novos_ativos['asset_name'] #+ ' ' + df_novos_ativos['issuer_name']
         df_categorizado['Categoria'] = categorias
         df_categorizado['Emissor'] = df_novos_ativos['issuer_name']
         df_categorizado['Vencimento'] = df_novos_ativos['duedate_fixed_income']
@@ -164,13 +173,15 @@ else:
 
         # Ajuste ETF's diligenciados
         ETF = ativos_diligenciados.lista_etf()
-        df_final['Recomendação'] = df_final['Ativo'].apply(
-            lambda x: 'PORTFEL' if any(re.search(rf'\b{re.escape(substr)}\b',x) for substr in ETF) else 'NÃO')
-        df_final['Tipo Gestão'] = df_final['Ativo'].apply(
-            lambda x: 'PASSIVA' if any(re.search(rf'\b{re.escape(substr)}\b', x) for substr in ETF) else 'ATIVO')
 
-
-        st.dataframe(df_final)
+        for etf in ETF:
+            df_final.loc[
+                df_final['Ativo'].str.contains(rf'\b{re.escape(etf)}\b', na=False), 'Tipo Gestão'
+            ] = 'PASSIVO'
+        for etf in ETF:
+            df_final.loc[
+                df_final['Ativo'].str.contains(rf'\b{re.escape(etf)}\b', na=False), 'Recomendação'
+            ] = 'PORTFEL'
 
         # Converte o DataFrame para um arquivo Excel
         def convert_df_to_excel(df):
@@ -180,8 +191,12 @@ else:
             buffer.seek(0)  # Retorna o ponteiro para o início do buffer
             return buffer
 
+        caminho_cod_emissor = 'CODIGO_EMISSOR.xlsx'
+        df_final_exit = padronizacao_emissor.ajuste_emissor(df_final,emissor_keys,risco, caminho_cod_emissor)
+        st.dataframe(df_final_exit)
+
         # Gera o arquivo Excel
-        excel_data = convert_df_to_excel(df_final)
+        excel_data = convert_df_to_excel(df_final_exit)
 
         # Formata a data no formato desejado
         # Dicionário de meses em português

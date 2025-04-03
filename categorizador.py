@@ -190,7 +190,7 @@ else:
                 df.to_excel(writer, index=False, sheet_name="Assets")
             buffer.seek(0)  # Retorna o ponteiro para o início do buffer
             return buffer
-
+        st.dataframe(df_final)
         caminho_cod_emissor = 'CODIGO_EMISSOR.xlsx'
         df_final_exit = padronizacao_emissor.ajuste_emissor(df_final,emissor_keys,risco, caminho_cod_emissor)
         st.dataframe(df_final_exit)

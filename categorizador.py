@@ -65,7 +65,7 @@ else:
         dataset['Categoria'] = df_novos_ativos_rf['class'].str.upper()
         dataset['Recomendação'] = df_novos_ativos_rf['class'].apply(lambda x: 'NÃO' if 'COE' in x else 'PORTFEL')
         dataset['Tipo Gestão'] = df_novos_ativos_rf['class'].apply(lambda x: 'ATIVO' if 'COE' in x else 'PASSIVO')
-        dataset['Origem'] = df_novos_ativos_rf['class'].apply(lambda x: 'BANCÁRIO' if any(substr in x for substr in ['CDB','LCI','LCA']) else 'OUTROS')
+        dataset['Origem'] = df_novos_ativos_rf['class'].apply(lambda x: 'BANCÁRIO' if any(substr in x for substr in ['CDB','LCI','LCA','RDB']) else 'OUTROS')
 
         return dataset
 
@@ -90,7 +90,7 @@ else:
         # Aplicação do Regex para extração do emissor
         df_emissor_SB_cat = ClassE.processa_emissores_SMARTBRAIN(df_emissor_SB)
         # Aplicação do filro para atribuir os emissores ao dataframe a ser categorizado
-        filtro = df_novos_ativos[df_novos_ativos['broker'] == 'SMARTBRAIN']['asset_name'].str.contains(r'\b(CDB|LCI|LCA)\b', case=False,
+        filtro = df_novos_ativos[df_novos_ativos['broker'] == 'SMARTBRAIN']['asset_name'].str.contains(r'\b(CDB|LCI|LCA|RDB)\b', case=False,
                                                                                  na=False)
         # Emissor
         df_novos_ativos.loc[
@@ -146,7 +146,7 @@ else:
 
         # Atribui a origem para ativos bancários
         df_final['Origem'] = df_final['Ativo'].apply(
-            lambda x: 'BANCÁRIO' if any(substr in x for substr in ['CDB', 'LCI', 'LCA']) else 'OUTROS')
+            lambda x: 'BANCÁRIO' if any(substr in x for substr in ['CDB', 'LCI', 'LCA','RDB']) else 'OUTROS')
 
         # Filtra ativos bancários como PASSIVO caso o algoritimo classifique como ATIVO
         df_final.loc[

@@ -57,6 +57,7 @@ else:
     uploaded_file = st.file_uploader("Upload", type='xlsx', label_visibility="hidden")
 
     def categoriza_rf(df_uploaded):
+        
         df_novos_ativos_rf = pd.read_excel(df_uploaded,sheet_name='Renda Fixa')
         df_novos_ativos_rf.fillna('',inplace = True)
 

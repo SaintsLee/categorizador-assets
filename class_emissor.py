@@ -3,7 +3,7 @@ import re
 
 def data_sb(data):
     # Filtrar ativos que contenham "CDB", "LCI" ou "LCA"
-    filtro = data[data['broker'] == 'SMARTBRAIN']['asset_name'].str.contains(r'\b(CDB|LCI|LCA)\b', case=False, na=False)
+    filtro = data[data['broker'] == 'SMARTBRAIN']['asset_name'].str.contains(r'\b(CDB|LCI|LCA|RDB)\b', case=False, na=False)
     data_bancarios = data[data['broker'] == 'SMARTBRAIN'][filtro]
     return data_bancarios
 
@@ -58,7 +58,7 @@ def processa_emissores_SMARTBRAIN(dataset):
   data_formatado = dataset[dataset['broker']=='SMARTBRAIN']
 
   # Filtrar ativos que contenham "CDB", "LCI" ou "LCA"
-  filtro = data_formatado['asset_name'].str.contains(r'\b(CDB|LCI|LCA)\b', case=False, na=False)
+  filtro = data_formatado['asset_name'].str.contains(r'\b(CDB|LCI|LCA|RDB)\b', case=False, na=False)
   data_bancarios = data_formatado[filtro]
 
   # Padronização do separador decimal

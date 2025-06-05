@@ -6,3 +6,6 @@ main.py
 .streamlit/secrets.toml
 portfel-product-list.xlsx
 
+/.idea
+/.idea
+/__pycache__

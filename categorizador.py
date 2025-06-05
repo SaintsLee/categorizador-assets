@@ -76,6 +76,7 @@ else:
 
         df_renda_fixa_categorizado = categoriza_rf(uploaded_file)
 
+        df_novos_ativos.loc[df_novos_ativos['broker'] == 'SMARTBRAIN', 'issuer_name'] = ''
 
         df_novos_ativos_names = pd.DataFrame()
         df_novos_ativos_names['Ativos'] = (df_novos_ativos['asset_name'] + " " +

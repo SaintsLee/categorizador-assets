@@ -72,6 +72,6 @@ def processa_emissores_SMARTBRAIN(dataset):
 
   # Tratamento final
   df_organizado['Banco'] = df_organizado['Banco'].apply(remover_numeros_caracteres_especiais)
-  df_organizado['Taxa'] = df_organizado['Taxa'].fillna('').apply(limpar_taxa)
+  df_organizado['Taxa'] = df_organizado['Taxa'].fillna('')#.apply(limpar_taxa)
 
   return df_organizado

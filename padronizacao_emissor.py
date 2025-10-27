@@ -26,14 +26,6 @@ def verifica_codigo_emissor(emissor, df_codigos_emissor, caminho_df_codigos):
     if emissor in df_codigos_emissor.values:
         codigo = df_codigos_emissor.loc[df_codigos_emissor['EMISSOR'] == emissor, 'CÓDIGO'].values[0]
         return codigo
-    else:
-        novo_codigo = df_codigos_emissor.shape[0]
-        df_novo_emissor = pd.DataFrame({'EMISSOR': [emissor], 'CÓDIGO': [novo_codigo]})
-        df_codigos_emissor = pd.concat([df_codigos_emissor, df_novo_emissor], ignore_index=True)
-        df_codigos_emissor.to_excel(caminho_df_codigos, index=False)
-
-        print(f"Novo emissor adicionado: {emissor}\nCódigo: {novo_codigo}")
-        return novo_codigo
 
 def ajuste_emissor(planilha_mestra,emissor_keys,instituicoes_bacen, caminho_emissor):
     planilha_mestra.columns = planilha_mestra.columns.str.upper()

@@ -63,10 +63,10 @@ else:
 
         dataset = pd.DataFrame()
         dataset['Ativo'] = df_novos_ativos_rf['asset_name']
-        dataset['Categoria'] = df_novos_ativos_rf['class'].str.upper()
-        dataset['Recomendação'] = df_novos_ativos_rf['class'].apply(lambda x: 'NÃO' if 'COE' in x else 'PORTFEL')
-        dataset['Tipo Gestão'] = df_novos_ativos_rf['class'].apply(lambda x: 'ATIVO' if 'COE' in x else 'PASSIVO')
-        dataset['Origem'] = df_novos_ativos_rf['class'].apply(lambda x: 'BANCÁRIO' if any(substr in x for substr in ['CDB','LCI','LCA','RDB']) else 'OUTROS')
+        dataset['Categoria'] = df_novos_ativos_rf['classification'].str.upper()
+        dataset['Recomendação'] = df_novos_ativos_rf['classification'].apply(lambda x: 'NÃO' if 'COE' in x else 'PORTFEL')
+        dataset['Tipo Gestão'] = df_novos_ativos_rf['classification'].apply(lambda x: 'ATIVO' if 'COE' in x else 'PASSIVO')
+        dataset['Origem'] = df_novos_ativos_rf['classification'].apply(lambda x: 'BANCÁRIO' if any(substr in x for substr in ['CDB','LCI','LCA','RDB']) else 'OUTROS')
 
         return dataset
 
@@ -89,6 +89,7 @@ else:
 
         # Aplicação do filtro para CDB/LCI/LCA para SMARTBRAIN
         df_emissor_SB = ClassE.data_sb(df_novos_ativos)
+        
         # Aplicação do Regex para extração do emissor
         df_emissor_SB_cat = ClassE.processa_emissores_SMARTBRAIN(df_emissor_SB)
         # Aplicação do filro para atribuir os emissores ao dataframe a ser categorizado

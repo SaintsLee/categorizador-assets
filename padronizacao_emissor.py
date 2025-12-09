@@ -3,7 +3,9 @@ import pandas as pd
 
 # Função para substituir o emissor baseado nas keys
 def substituir_emissor(emissor, df_keys_emissor):
-
+    df_keys_emissor['KEYS'] = df_keys_emissor['KEYS'].apply(
+    lambda x: re.sub(r'[^\w\s]', '', str(x)).strip()
+    )
     for _, row in df_keys_emissor.iterrows(): # para cada linha do dataframe que contém as chaves
         emissor_sem_espaco = emissor.strip() # remove todos os espaços antes e depois da string a ser verificada
         if re.search(row['KEYS'], emissor_sem_espaco, re.IGNORECASE): # se a string a ser verificada conter a palavra chave
@@ -35,7 +37,7 @@ def ajuste_emissor(planilha_mestra,emissor_keys,instituicoes_bacen, caminho_emis
     df_codigos_emissores = pd.read_excel(caminho_emissor)
 
     planilha_mestra = planilha_mestra.fillna('N/A')
-    planilha_mestra['EMISSOR'] = planilha_mestra['EMISSOR'].str.strip()
+    planilha_mestra['EMISSOR'] = planilha_mestra['EMISSOR'].str.strip() + planilha_mestra['ATIVO']
     planilha_mestra['EMISSOR'] = planilha_mestra['EMISSOR'].astype(str)
 
     planilha_mestra['Emissores Corretos'] = planilha_mestra['EMISSOR'].apply(substituir_emissor, args=(emissor_keys,))
@@ -46,11 +48,13 @@ def ajuste_emissor(planilha_mestra,emissor_keys,instituicoes_bacen, caminho_emis
 
     planilha_teste.loc[:, 'RISCO BACEN'] = planilha_teste['EMISSOR'].apply(buscar_risco,
                                                     args=(emissor_keys, instituicoes_bacen,))
+    
     planilha_teste.loc[:, 'RISCO BACEN'] = planilha_teste['RISCO BACEN'].astype(str)
 
     planilha_teste['CÓDIGO'] = planilha_teste['EMISSOR'].apply(verifica_codigo_emissor,args = (df_codigos_emissores,caminho_emissor))
 
     planilha_teste['EMISSOR'] = planilha_teste['CÓDIGO']
+
 
     df_final = planilha_teste.drop(columns=['RISCO BACEN','CÓDIGO','VENCIMENTO','ORIGEM',]).copy()
     df_final = df_final.rename(columns={'CATEGORIA': 'CLASSIFICAÇÃO PORTFEL'}).reset_index().drop(columns='index')

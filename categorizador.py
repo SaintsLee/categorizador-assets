@@ -189,14 +189,9 @@ else:
                 df_final['Ativo'].str.contains(rf'\b{re.escape(etf)}\b', na=False), 'Recomendação'
             ] = 'PORTFEL'
 
-        # Converte o DataFrame para um arquivo Excel
-        def convert_df_to_excel(df):
-            buffer = BytesIO()
-            with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
-                df.to_excel(writer, index=False, sheet_name="Assets")
-            buffer.seek(0)  # Retorna o ponteiro para o início do buffer
-            return buffer
+
         caminho_cod_emissor = 'CODIGO_EMISSOR.xlsx'
+        st.dataframe(df_final)
         df_final_exit = padronizacao_emissor.ajuste_emissor(df_final,emissor_keys,risco, caminho_cod_emissor)
         df_final_exit.rename(columns={"ATIVO": "Ativo",
                                       "CLASSIFICAÇÃO PORTFEL": "Classificação portfel",
@@ -206,6 +201,14 @@ else:
                              inplace=True)
         st.dataframe(df_final_exit)
 
+        # Converte o DataFrame para um arquivo Excel
+        def convert_df_to_excel(df):
+            buffer = BytesIO()
+            with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+                df.to_excel(writer, index=False, sheet_name="Assets")
+            buffer.seek(0)  # Retorna o ponteiro para o início do buffer
+            return buffer
+        
         # Gera o arquivo Excel
         excel_data = convert_df_to_excel(df_final_exit)
 
